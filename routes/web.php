@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EasybrokerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+Route::get("/",[EasybrokerController::class,'point'])->name("home");
+Route::get("/contactreqgetall",[EasybrokerController::class,'contactreqgetall'])->name("contactreqgetall");
+Route::get("/contactreqgetall/{page}",[EasybrokerController::class,'contactreqgetallnext'])->name("contactreqgetallnext");
