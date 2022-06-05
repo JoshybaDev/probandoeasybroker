@@ -3,49 +3,51 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use JoshybaCorpDevs\EasyBroker\EasyBroker;
 
 class EasybrokerController extends Controller
 {
-    public function point()
-    {
-        $data="";
-        // $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
-        // $response=$easy->client()->properties()->find("xxxx");
-        // dd($response);
-        // //
-
-        // $response=$easy->client()->properties()->search([""=>""]);
-
-        // $response=$easy->client()->locations()->search([""=>""]);
-
-        // $response=$easy->client()->contact_requests()->search([""=>""]);
-
-        // $response=$easy->client()->mls_properties()->search([""=>""]);
-
-        return view("points",compact('data'));
-    }
-    public function contactreqgetall()
+    /** CONTACTS_REQUEST */
+    public function contact_req_getall()
     {
         $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
         $contactosResponsePagination = $easy->client()->contact_requests()->search([]);
         session()->put("contactosResponsePagination",$contactosResponsePagination);
-        $content=$contactosResponsePagination->content();
-        //$pagination=$contactosResponsePagination->pagination();
-        $paginator=$this->paginator($contactosResponsePagination->page(),$contactosResponsePagination->total());
-        return view("contactoscontent",compact('content','paginator'));
+        if(!$contactosResponsePagination->error())
+        {
+            $content=$contactosResponsePagination->content();
+            $paginator=$this->paginator($contactosResponsePagination->page(),$contactosResponsePagination->total());
+            return view("contact_request/contactoscontent",compact('content','paginator'));
+        }
+        else
+        {
+            return AlertError($contactosResponsePagination->response()["error"]);
+        }
     }
-    public function contactreqgetallnext($page)
+    public function contact_req_get_all_next($page)
     {
-        //dd($page);
         $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
-        $contactosResponsePagination = session()->get("contactosResponsePagination");
-        $contactosResponsePagination->select_page($page);
-        //return $content=$contactosResponsePagination->response();
-        $content=$contactosResponsePagination->content();
-        //$pagination=$contactosResponsePagination->pagination();
-        $paginator=$this->paginator($contactosResponsePagination->page(),$contactosResponsePagination->total());
-        return view("contactoscontent",compact('content','paginator'));
+        if(!session()->has("contactosResponsePagination"))
+        {
+            $contactosResponsePagination = $easy->client()->contact_requests()->search([]);
+            session()->put("contactosResponsePagination",$contactosResponsePagination);            
+        }
+        else
+        {
+            $contactosResponsePagination = session()->get("contactosResponsePagination");
+        }   
+        if(!$contactosResponsePagination->error())
+        {
+            $contactosResponsePagination->select_page($page);
+            $content=$contactosResponsePagination->content();
+            $paginator=$this->paginator($contactosResponsePagination->page(),$contactosResponsePagination->total());              
+            return view("contact_request/contactoscontent",compact('content','paginator'));
+        }
+        else
+        {
+            return AlertError($contactosResponsePagination->response()["error"]);
+        } 
     }
     function paginator($page,$total)
     {
@@ -90,5 +92,154 @@ class EasybrokerController extends Controller
         $paginator["next_status"]=$next_page_status;
         $paginator["page_total"]=$total;
         return $paginator;            
+    }
+    public function contact_req_save()
+    {
+        $validator = Validator::make(request()->all(), [
+            'cname' => 'required|max:255',
+            'cphone' => 'required',
+            'cemail'=> 'required',
+            'cid'=> 'required',
+            'cmsg'=> 'required',
+            'csource'=> 'required',
+        ]);
+        if ($validator->fails()) {
+            /*
+                return redirect('post/create')
+                ->withErrors($validator)
+                ->withInput();
+            */
+            return view("errorsvalidators")->with("errors",$validator->errors());         
+        }        
+        $parameters=request()->all();
+        $parameters=[
+            "name"=>$parameters["cname"],
+            "phone"=>$parameters["cphone"],
+            "email"=>$parameters["cemail"],
+            "property_id"=>$parameters["cid"],
+            "message"=>$parameters["cmsg"],
+            "source"=>$parameters["csource"],           
+        ];
+        $parameters=json_encode($parameters);
+        $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
+        $contactNewResponse=$easy->client()->contact_requests()->create($parameters);
+        $contactNewResponse=json_decode($contactNewResponse,true);
+        return view("errorsresponse",["response"=>$contactNewResponse]);
+    }
+    /** PROPERTIES */
+    public function properties_get_all()
+    {
+        $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
+        $PropertiesResponsePagination = $easy->client()->properties()->search([]);
+        session()->put("PropertiesResponsePagination",$PropertiesResponsePagination);
+        if(!$PropertiesResponsePagination->error())
+        {
+            $content=$PropertiesResponsePagination->content();
+            $paginator=$this->paginator($PropertiesResponsePagination->page(),$PropertiesResponsePagination->total());
+            return view("properties/propertiescontent",compact('content','paginator'));
+        }
+        else
+        {
+            return AlertError($PropertiesResponsePagination->response()["error"]);
+        }
+    }  
+    public function properties_get_all_next($page)
+    {
+        $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
+        if(!session()->has("PropertiesResponsePagination"))
+        {
+            $PropertiesResponsePagination = $easy->client()->properties()->search([]);
+            session()->put("PropertiesResponsePagination",$PropertiesResponsePagination);            
+        }
+        else
+        {
+            $PropertiesResponsePagination = session()->get("PropertiesResponsePagination");
+        }     
+        if(!$PropertiesResponsePagination->error())
+        {
+            $PropertiesResponsePagination->select_page($page);
+            $content=$PropertiesResponsePagination->content();
+            $paginator=$this->paginator($PropertiesResponsePagination->page(),$PropertiesResponsePagination->total());       
+            return view("properties/propertiescontent",compact('content','paginator'));
+        }
+        else
+        {
+            return AlertError($PropertiesResponsePagination->response()["error"]);
+        }
+    }     
+    public function properties_get_by_id($id)
+    {
+        $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
+        $PropertiesResponseById = $easy->client()->properties()->find($id);
+        if(isset($PropertiesResponseById["error"]))
+        return AlertError($PropertiesResponseById["error"]);
+        else
+        return view("properties/propertiescontentbyid",compact('PropertiesResponseById'));
+    }   
+    /** MLS PROPERTIES */
+    public function mlsproperties_get_all()
+    {
+        $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
+        $MlsPropertiesResponsePagination = $easy->client()->mls_properties()->search([]);
+        session()->put("MlsPropertiesResponsePagination",$MlsPropertiesResponsePagination);
+        if(!$MlsPropertiesResponsePagination->error())
+        {
+            $content=$MlsPropertiesResponsePagination->content();
+            $paginator=$this->paginator($MlsPropertiesResponsePagination->page(),$MlsPropertiesResponsePagination->total());
+            return view("mlsproperties/mlspropertiescontent",compact('content','paginator'));
+        }
+        else
+        {
+            return AlertError($MlsPropertiesResponsePagination->response()["error"]);
+        }
+    }  
+    public function mlsproperties_get_all_next($page)
+    {
+        $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
+        if(!session()->has("MlsPropertiesResponsePagination"))
+        {
+            $MlsPropertiesResponsePagination = $easy->client()->properties()->search([]);
+            session()->put("MlsPropertiesResponsePagination",$MlsPropertiesResponsePagination);            
+        }
+        else
+        {
+            $MlsPropertiesResponsePagination = session()->get("MlsPropertiesResponsePagination");
+        }   
+        if(!$MlsPropertiesResponsePagination->error())
+        {
+            $MlsPropertiesResponsePagination->select_page($page);
+            $content=$MlsPropertiesResponsePagination->content();
+            $paginator=$this->paginator($MlsPropertiesResponsePagination->page(),$MlsPropertiesResponsePagination->total()); 
+            return view("mlsproperties/mlspropertiescontent",compact('content','paginator'));
+        }
+        else
+        {
+            return AlertError($MlsPropertiesResponsePagination->response()["error"]);
+        }        
+    }    
+    public function mlsproperties_get_by_id($id)
+    {
+        $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
+        $MlsPropertiesResponseById = $easy->client()->mls_properties()->find($id);
+        if(isset($MlsPropertiesResponseById["error"]))
+        return AlertError($MlsPropertiesResponseById["error"]);
+        else
+        return view("mls_properties/mlspropertiescontentbyid",compact('MlsPropertiesResponseById'));
+    }  
+    /**Locations */      
+    public function locations($location="")
+    {
+        $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
+        $contactosResponsePagination = $easy->client()->locations()->search("query=".$location);
+        if(!$contactosResponsePagination->error())
+        {
+            $content=$contactosResponsePagination->content();
+            $paginator=$this->paginator($contactosResponsePagination->page(),$contactosResponsePagination->total());
+            return view("locations/locationscontent",compact('content','paginator'));
+        }
+        else
+        {
+            return AlertError($contactosResponsePagination->response()["error"]);
+        }
     }
 }

@@ -2222,18 +2222,154 @@ document.getElementById("formcontactreqgetall").addEventListener("submit", funct
   event.preventDefault();
   window.easybroker.findData('', 'contentcr1', 'contactreqgetall');
 });
+document.getElementById("formcontactnew").addEventListener("submit", function (event) {
+  event.preventDefault();
+  window.easybroker.contactsave('formcontactnew', 'ModalNewContact', 'contactreqsave');
+});
+document.getElementById("formpropertiesgetall").addEventListener("submit", function (event) {
+  event.preventDefault();
+  window.easybroker.findData('', 'contentpro1', 'propertiesgetall');
+});
+document.getElementById("formpropertiefindbyid").addEventListener("submit", function (event) {
+  event.preventDefault();
+  window.easybroker.modalInfoPropertieById('', 'contentpro1byId', 'properties');
+});
+document.getElementById("formmlspropertiesgetall").addEventListener("submit", function (event) {
+  event.preventDefault();
+  window.easybroker.findData('', 'contentmlspro', 'mslpropertiesgetall');
+});
+document.getElementById("formmlspropertiefindbyid").addEventListener("submit", function (event) {
+  event.preventDefault();
+  window.easybroker.modalInfoMlsPropertieById('', 'contentmlsprobyId', 'mlsproperties');
+});
+document.getElementById("formmlspropertiefindbyid").addEventListener("submit", function (event) {
+  event.preventDefault();
+  window.easybroker.modalInfoMlsPropertieById('', 'contentmlsprobyId', 'mlsproperties');
+});
+document.getElementById("formlocationsfindbyid").addEventListener("submit", function (event) {
+  event.preventDefault();
+  window.easybroker.searchlocation('', 'contentlocation', 'locations');
+});
 window.easybroker = {
-  findData: function findData(form, content, url) {
+  msg_global_ajax: document.getElementById("msg_global_ajax"),
+  propertyId: document.getElementById("id"),
+  mlspropertyId: document.getElementById("idmls"),
+  conactnewmsg: document.getElementById("conactnewmsg"),
+  locationdata: document.getElementById("locationdata"),
+  modalProcess: new bootstrap.Modal(document.getElementById('processModal'), {
+    keyboard: false
+  }),
+  modalContactNew: new bootstrap.Modal(document.getElementById('ModalNewContact'), {
+    keyboard: false
+  }),
+  modalShowPropertyById: new bootstrap.Modal(document.getElementById('ModalShowPropertyById'), {
+    keyboard: false
+  }),
+  ModalShowMlsPropertyById: new bootstrap.Modal(document.getElementById('ModalShowMlsPropertyById'), {
+    keyboard: false
+  }),
+  alertsucess: function alertsucess(msg) {
+    return "<div class=\"alert alert-success\"><i class=\"bi bi-tropical-storm\"></i>".concat(msg, "</div>");
+  },
+  alertdanger: function alertdanger(msg) {
+    return "<div class=\"alert alert-danger\"><i class=\"bi bi-tropical-storm\"></i>".concat(msg, "</div>");
+  },
+  findData: function findData(xFormText, content, url) {
+    easybroker.msg_global_ajax.innerHTML = easybroker.alertsucess("Processing ...");
+    easybroker.modalProcess.show();
     axios.get(url).then(function (res) {
-      console.log(res);
-      document.getElementById(content).innerHTML = res.data;
+      if (res.status == 200) {
+        easybroker.reset();
+        document.getElementById(content).innerHTML = res.data;
+      } else easybroker.msg_global_ajax.innerHTML = easybroker.alertdanger("Error");
+    })["catch"](function (error) {
+      console.log("error", error);
+      easybroker.reset(easybroker.alertdanger(error));
     });
   },
   findNext: function findNext(content, url) {
-    console.log("findNext", url);
+    easybroker.msg_global_ajax.innerHTML = easybroker.alertsucess("Processing ...");
+    easybroker.modalProcess.show();
     axios.get(url).then(function (res) {
-      console.log(res);
-      document.getElementById(content).innerHTML = res.data;
+      if (res.status == 200) {
+        easybroker.reset();
+        document.getElementById(content).innerHTML = res.data;
+      } else easybroker.msg_global_ajax.innerHTML = easybroker.alertdanger("Error");
+    })["catch"](function (error) {
+      console.log("error", error);
+      easybroker.reset(easybroker.alertdanger(error));
+    });
+  },
+  reset: function reset() {
+    var msg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
+    easybroker.modalProcess.hide();
+    easybroker.msg_global_ajax.innerHTML = msg;
+  },
+  contactsave: function contactsave(xFormText, content, url) {
+    easybroker.conactnewmsg.innerHTML = easybroker.alertsucess("Processing ...");
+    var xForm = document.getElementById(xFormText);
+    var data = new FormData(xForm);
+    axios.post(url, data).then(function (res) {
+      if (res.status == 200) {
+        easybroker.conactnewmsg.innerHTML = res.data;
+        setTimeout(function () {
+          easybroker.contactreset();
+          xForm.reset();
+        }, 3000);
+      } else easybroker.conactnewmsg.innerHTML = easybroker.alertdanger("Error");
+    })["catch"](function (error) {
+      console.log("error", error);
+      easybroker.reset(easybroker.alertdanger(error));
+    });
+  },
+  contactreset: function contactreset() {
+    easybroker.modalContactNew.hide();
+    easybroker.conactnewmsg.innerHTML = "";
+  },
+  modalInfoPropertieById: function modalInfoPropertieById(xFormText, content, url) {
+    easybroker.msg_global_ajax.innerHTML = easybroker.alertsucess("Processing ...");
+    easybroker.modalProcess.show();
+    axios.get(url + "/" + easybroker.propertyId.value).then(function (res) {
+      if (res.status == 200) {
+        easybroker.reset();
+        easybroker.modalShowPropertyById.show();
+        document.getElementById(content).innerHTML = res.data;
+      } else easybroker.msg_global_ajax.innerHTML = easybroker.alertdanger("Error");
+    })["catch"](function (error) {
+      console.log("error", error);
+      easybroker.reset(easybroker.alertdanger(error));
+    });
+  },
+  modalInfoMlsPropertieById: function modalInfoMlsPropertieById(xFormText, content, url) {
+    easybroker.msg_global_ajax.innerHTML = easybroker.alertsucess("Processing ...");
+    easybroker.modalProcess.show();
+    axios.get(url + "/" + easybroker.mlspropertyId.value).then(function (res) {
+      if (res.status == 200) {
+        easybroker.reset();
+        easybroker.ModalShowMlsPropertyById.show();
+        document.getElementById(content).innerHTML = res.data;
+      } else easybroker.msg_global_ajax.innerHTML = easybroker.alertdanger("Error");
+    })["catch"](function (error) {
+      console.log("error", error);
+      easybroker.reset(easybroker.alertdanger(error));
+    });
+  },
+  searchlocation: function searchlocation(xFormText, content, url) {
+    easybroker.msg_global_ajax.innerHTML = easybroker.alertsucess("Processing ...");
+    easybroker.modalProcess.show();
+
+    if (!easybroker.locationdata.value == "") {
+      url = url + "/" + easybroker.locationdata.value;
+    }
+
+    axios.get(url).then(function (res) {
+      if (res.status == 200) {
+        easybroker.reset();
+        document.getElementById(content).innerHTML = res.data;
+      } else easybroker.msg_global_ajax.innerHTML = easybroker.alertdanger("Error");
+    })["catch"](function (error) {
+      console.log("error", error);
+      easybroker.reset(easybroker.alertdanger(error));
     });
   }
 };

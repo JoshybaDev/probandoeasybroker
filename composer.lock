@@ -895,7 +895,7 @@
         },
         {
             "name": "joshybacorpdevs/easybroker",
-            "version": "dev-main",
+            "version": "dev-master",
             "dist": {
                 "type": "path",
                 "url": "../PaquetesLaravel/joshybacorpdevs/easybroker",
