@@ -96,8 +96,8 @@ window.easybroker = {
     },
     reset:(msg="") =>
     {
-        easybroker.modalProcess.hide();
         easybroker.msg_global_ajax.innerHTML=msg;
+        easybroker.modalProcess.hide();
     },
     contactsave: (xFormText,content,url) =>
     {

@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.0.2",
         "guzzlehttp/guzzle": "^7.2",
-        "joshybacorpdevs/easybroker": "*",
+        "joshybadev/easybroker": "*",
         "laravel/framework": "^9.11",
         "laravel/sanctum": "^2.14.1",
         "laravel/tinker": "^2.7"
@@ -20,16 +20,6 @@
         "phpunit/phpunit": "^9.5.10",
         "spatie/laravel-ignition": "^1.0"
     },
-    "repositories": [
-        {
-            "packagist.org": false,
-            "type": "path",
-            "url" : "../PaquetesLaravel/joshybacorpdevs/easybroker",
-            "options": {
-                "symlink": false
-            }
-        }
-    ],
     "autoload": {
         "psr-4": {
             "App\\": "app/",

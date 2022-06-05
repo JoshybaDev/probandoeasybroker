@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use JoshybaDev\EasyBroker\EasyBroker;
 use Illuminate\Support\Facades\Validator;
-use JoshybaCorpDevs\EasyBroker\EasyBroker;
+
+
 
 class EasybrokerController extends Controller
 {
@@ -12,7 +14,7 @@ class EasybrokerController extends Controller
     public function contact_req_getall()
     {
         $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
-        $contactosResponsePagination = $easy->client()->contact_requests()->search([]);
+        $contactosResponsePagination = $easy->client()->contact_requests()->search("");
         session()->put("contactosResponsePagination",$contactosResponsePagination);
         if(!$contactosResponsePagination->error())
         {
@@ -30,7 +32,7 @@ class EasybrokerController extends Controller
         $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
         if(!session()->has("contactosResponsePagination"))
         {
-            $contactosResponsePagination = $easy->client()->contact_requests()->search([]);
+            $contactosResponsePagination = $easy->client()->contact_requests()->search("");
             session()->put("contactosResponsePagination",$contactosResponsePagination);            
         }
         else
@@ -130,7 +132,7 @@ class EasybrokerController extends Controller
     public function properties_get_all()
     {
         $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
-        $PropertiesResponsePagination = $easy->client()->properties()->search([]);
+        $PropertiesResponsePagination = $easy->client()->properties()->search("");
         session()->put("PropertiesResponsePagination",$PropertiesResponsePagination);
         if(!$PropertiesResponsePagination->error())
         {
@@ -148,7 +150,7 @@ class EasybrokerController extends Controller
         $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
         if(!session()->has("PropertiesResponsePagination"))
         {
-            $PropertiesResponsePagination = $easy->client()->properties()->search([]);
+            $PropertiesResponsePagination = $easy->client()->properties()->search("");
             session()->put("PropertiesResponsePagination",$PropertiesResponsePagination);            
         }
         else
@@ -180,7 +182,7 @@ class EasybrokerController extends Controller
     public function mlsproperties_get_all()
     {
         $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
-        $MlsPropertiesResponsePagination = $easy->client()->mls_properties()->search([]);
+        $MlsPropertiesResponsePagination = $easy->client()->mls_properties()->search("");
         session()->put("MlsPropertiesResponsePagination",$MlsPropertiesResponsePagination);
         if(!$MlsPropertiesResponsePagination->error())
         {
@@ -198,7 +200,7 @@ class EasybrokerController extends Controller
         $easy=new EasyBroker(env("API_KEY_EasyBroker"),env('APP_ENV'));
         if(!session()->has("MlsPropertiesResponsePagination"))
         {
-            $MlsPropertiesResponsePagination = $easy->client()->properties()->search([]);
+            $MlsPropertiesResponsePagination = $easy->client()->properties()->search("");
             session()->put("MlsPropertiesResponsePagination",$MlsPropertiesResponsePagination);            
         }
         else
